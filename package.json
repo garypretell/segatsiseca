@@ -1,6 +1,12 @@
 {
   "name": "segatsiseca",
-  "version": "0.0.0",
+  "version": "9.0.3",
+  "description": "Angular 11",
+  "homepage": "https://github.com/garypretell/segatsiseca",
+  "author": {
+    "name": "Gary Pretell",
+    "email": "garypretell24@gmail.com"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
