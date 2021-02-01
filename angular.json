@@ -26,7 +26,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [ ]
           },
           "configurations": {
             "production": {
@@ -116,9 +116,16 @@
               "devServerTarget": "segatsiseca:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {}
         }
       }
     }
   },
-  "defaultProject": "segatsiseca"
+  "defaultProject": "segatsiseca",
+  "cli": {
+    "analytics": false
+  }
 }

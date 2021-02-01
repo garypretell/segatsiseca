@@ -1,0 +1,47 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item text-primary"><a role="button" (click)="goHome()">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Registrar</li>
+    </ol>
+</nav>
+<div class="container">
+    <h1>Registrar Incidencias</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <h5>Seleccione ubicación de incidencia</h5>
+            </div>
+            <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoom">
+                <agm-marker [latitude]="latitude" [longitude]="longitude" [markerDraggable]="true"
+                    (dragEnd)="markerDragEnd($event)"></agm-marker>
+            </agm-map>
+            <div>Latitud: {{latitude}}</div>
+            <div>Longitud: {{longitude}}</div>
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Mensaje!</strong> Las imágenes serán almacenadas en la nube (pertenecientes a esta incidencia)
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form [formGroup]="incidenceForm" class=" m2-5">
+                <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Descripción:</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" formControlName="descripcion"></textarea>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="formGroupExampleInput2">Adjuntar Imágenes</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="customFileLang" lang="es" (change)="selectFiles($event)" accept="image/*,application/pdf" multiple>
+                        <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg" [disabled]="!selectedFiles" (click)="uploadFiles()">Registrar</button>
+                <hr>
+            </form>
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>

@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "inventario-13594": {
+      "hosting": {
+        "segatsiseca": [
+          "inventario-13594"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "inventario-13594"
+  }
+}
