@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 
@@ -11,6 +12,7 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  
   constructor(public formBuilder: FormBuilder,
               private afs: AngularFirestore,
               public auth: AuthService,
@@ -29,12 +31,15 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['incidence']);
   }
 
-  goFs(): void {}
+  administrar(): void {
+    this.router.navigate(['usuario', 'buscar']);
+  }
 
   goLogin(): any {
     this.auth.signOut().then(() => {
       this.router.navigate(['/']);
     });
   }
+
 
 }

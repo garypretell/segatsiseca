@@ -9,6 +9,7 @@
     <thead>
       <tr>
         <th scope="col">#</th>
+        <th class="text-left" scope="col">Código</th>
         <th class="text-left">Descripcion</th>
         <th scope="col">Fecha</th>
         <th scope="col">Estado</th>
@@ -18,6 +19,9 @@
     <tbody>
       <tr *ngFor="let item of incidences | paginate: { itemsPerPage: 7, currentPage: p }; let i = index">
         <td>{{ 7 * (p -1) + i + 1}} </td>
+        <td class="text-left">
+          {{item.id }}
+        </td>
         <td class="text-left">
           {{item.incidencia }}
         </td>
@@ -42,5 +46,13 @@
 <ng-template #noElement>
   <div class="alert alert-info" role="alert">
     No items found!
+  </div>
+</ng-template>
+<ng-template #mensaje>
+  <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+    <strong>Important!</strong> Add folders from the list to start indexing.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </div>
 </ng-template>

@@ -66,20 +66,22 @@ export class AuthService {
     return this.user$.pipe(take(1)).toPromise();
   }
 
-  async signOut() {
+  async signOut(): Promise<void> {
     await this.afAuth.signOut();
   }
 
-  private async createUserData(user: any, usuario: any ) {
+  private async createUserData(user: any, usuario: any ): Promise<void> {
 
     const usuarioRef: AngularFirestoreDocument<any> = this.afs.doc(`usuarios/${user.uid}`);
     const data: any = {
       photoURL: user.photoURL,
       createdAt: firebase.firestore.Timestamp.now().toDate(),
       uid: user.uid,
+      dni: usuario.dni,
       displayName: usuario.displayName,
       email: usuario.email,
       estado: true,
+      principal: false,
       roles: {
         subscriber: true,
         editor: false,

@@ -48,12 +48,12 @@ export class AccountComponent implements OnInit {
 
   async onRegister(): Promise<any> {
     this.afs.firestore
-      .doc(`usuario/${this.accountForm.value.sede}`)
+      .doc(`usuarios/${this.accountForm.value.sede}`)
       .get()
       .then((docSnapshot: any) => {
         if (!docSnapshot.exists) {
           this.afs
-            .collection(`usuario`, (ref) =>
+            .collection(`usuarios`, (ref) =>
               ref.where('email', '==', this.accountForm.value.email)
             )
             .valueChanges({ idField: 'id' })

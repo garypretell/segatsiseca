@@ -13,6 +13,9 @@ import { AgmCoreModule } from '@agm/core';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { FilterPipeModule } from 'ngx-filter-pipe';
+import { DragScrollModule } from 'ngx-drag-scroll';
+import { NgImageSliderModule } from 'ng-image-slider';
 
 @NgModule({
   declarations: [
@@ -31,7 +34,10 @@ import { NgxPaginationModule } from 'ngx-pagination';
       apiKey: 'AIzaSyBqjmFHWrxoY5bfa7J_Ym-wKf5qFM0Mxas',
       libraries: ['places']
     }),
-    NgxPaginationModule
+    NgxPaginationModule,
+    FilterPipeModule,
+    DragScrollModule,
+    NgImageSliderModule
   ],
   providers: [],
   bootstrap: [AppComponent]

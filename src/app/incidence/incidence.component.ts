@@ -69,7 +69,7 @@ export class IncidenceComponent implements OnInit {
       navigator.geolocation.getCurrentPosition((position) => {
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
-        this.zoom = 8;
+        this.zoom = 12;
       });
     }
   }
@@ -104,7 +104,8 @@ export class IncidenceComponent implements OnInit {
         latitud: this.latitude,
         longitud: this.longitude,
         uid,
-        estado: 'REGISTRADO'
+        estado: 'REGISTRADO',
+        area: 'SIN ASIGNAR'
       };
       this.afs.doc(`incidence/${uploadId}`).set(data);
       this.goHome();

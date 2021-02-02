@@ -1,0 +1,117 @@
+<div class="container-fluid ">
+    <div class="row mt-4">
+        <div class="col-sm-12 col-md-3">
+            <h5>Incidencias</h5>
+            <hr class="mt-1">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Mensaje!</strong> Asigne Área a la incidencia.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-9">
+            <ng-container *ngIf="tipoIncidencia$ | async as tipos">
+                <select class="custom-select mb-3" size="5" (click)="filterList($event)">
+                    <ng-container *ngFor="let tipo of tipos">
+                        <option value="{{tipo.descripcion}}">{{tipo.descripcion}}</option>
+                    </ng-container>
+                </select>
+            </ng-container>
+            <ng-container *ngIf="incidences$ | async as incidences; else loading">
+                <table class="table text-center" *ngIf="incidences.length > 0; else noElement">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th class="text-left" scope="col">Código</th>
+                            <th class="text-left">Descripcion</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Área</th>
+                            <th scope="col">Asignar Área</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="let item of incidences | paginate: { itemsPerPage: 7, currentPage: p }; let i = index">
+                            <td>{{ 7 * (p -1) + i + 1}} </td>
+                            <td class="text-left">
+                                {{item.id }}
+                            </td>
+                            <td class="text-left">
+                                {{item.incidencia }}
+                            </td>
+                            <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
+                            <td><span class="badge badge-success">{{item.estado }}</span></td>
+                            <ng-container *ngIf="item.area; else noarea" >
+                                <td class="text-center">{{ item.area }}</td>
+                            </ng-container>
+                            <ng-template #noarea>
+                                <td class="text-center"><span class="badge badge-primary"
+                                    >NO ASIGNADA</span></td>
+                            </ng-template>
+                            <td><span role="button" class="badge badge-primary"
+                                    (click)="editIncidencia(item)">Editar</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-right mt-2" *ngIf="incidences.length > 7">
+                    <pagination-controls (pageChange)="p = $event">
+                    </pagination-controls>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<div #editModal class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <form class="form" (ngSubmit)="asignar()">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Asignar Area</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" *ngIf="areas$ | async as areas; else loading">
+                    <div class="row mb-2">
+                        <div class="col">
+                          <label for="nivel">Area:</label>
+                          <select class="form-control" [(ngModel)]="area" name="area" >
+                            <option selected disabled value="">Choose...</option>
+                            <ng-container *ngFor="let area of areas">
+                              <option value="{{area.descripcion}}">{{area.descripcion}}</option>
+                            </ng-container>
+                          </select>
+                        </div>
+                      </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<ng-template #loading>
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border text-info" role="status">
+        </div>
+        <strong class="text-info"> Loading... </strong>
+    </div>
+</ng-template>
+<ng-template #mensaje>
+    <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+        <strong>Important!</strong> Add folders from the list to start indexing.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</ng-template>
+<ng-template #noElement>
+    <div class="alert alert-info" role="alert">
+        No existen incidencias en este estado!
+    </div>
+</ng-template>

@@ -27,6 +27,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   name$: any;
   foto: any;
   super: boolean;
+  miusuario: any = {};
   constructor(
     public auth: AuthService,
     public afAuth: AngularFireAuth,
@@ -36,27 +37,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   ) {}
 
   sub;
-  ngOnInit(): void {
-    this.sub = this.afAuth.authState
-      .pipe(
-        switchMap((data) => {
-          if (data) {
-            this.name$ = data.displayName;
-            this.foto = data.photoURL;
-            return this.afs
-              .doc(`usuarios/${data.uid}`)
-              .valueChanges()
-              .pipe(
-                map((m: any) => {
-                  this.super = m.roles.super;
-                })
-              );
-          } else {
-            return of(null);
-          }
-        })
-      )
-      .subscribe();
+  async ngOnInit(): Promise<void> {
+    const { uid } = await this.auth.getUser();
+    this.sub =  await this.afs.doc(`usuarios/${uid}`).valueChanges().pipe(map((m: any) => {
+      this.miusuario = m;
+    })).subscribe();
   }
 
   ngOnDestroy(): any {
@@ -69,5 +54,21 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     this.auth.signOut().then(() => {
       this.router.navigate(['/']);
     });
+  }
+
+  goUsuarios(): void {
+    if (this.miusuario.principal) {
+      this.router.navigate(['usuario']);
+    }else {
+      this.router.navigate(['usuario', 'area']);
+    }
+  }
+
+  goIncidencias(): void {
+    if (this.miusuario.principal) {
+      this.router.navigate(['incidence', 'listado']);
+    }else {
+      this.router.navigate(['incidence', 'area']);
+    }
   }
 }

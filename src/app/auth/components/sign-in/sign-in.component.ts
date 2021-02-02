@@ -38,6 +38,7 @@ export class SignInComponent implements OnInit {
     try {
       const user = await this.auth.login(this.loginForm.value.email, this.loginForm.value.password);
       if (user) {
+        console.log(user);
         const isVerified = this.auth.isEmailVerified(user);
         this.redirectUser(isVerified);
       }
