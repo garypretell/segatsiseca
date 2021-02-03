@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  ɵConsole,
 } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -11,6 +12,7 @@ import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/Observable';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
+import firebase from 'firebase/app';
 import Swal from 'sweetalert2';
 declare const jQuery: any;
 declare const $;
@@ -25,8 +27,9 @@ export class IncidenceListadoComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject();
   incidenciatoEdit: any = {};
   incidences$: Observable<any>;
+  estadoActual: any = 'REGISTRADO';
   areas$: Observable<any>;
-  area: any;
+  area: any = null;
   tipoIncidencia$: Observable<any>;
   p = 1;
   constructor(
@@ -57,6 +60,7 @@ export class IncidenceListadoComponent implements OnInit, OnDestroy {
   }
 
   filterList(e): void {
+    this.estadoActual = e.target.value;
     this.incidences$ = this.afs
       .collection('incidence', (ref) =>
         ref.where('estado', '==', e.target.value).orderBy('createdAt', 'desc')
@@ -83,10 +87,19 @@ export class IncidenceListadoComponent implements OnInit, OnDestroy {
       });
   }
 
-  asignar(): void {
+  async asignar(): Promise<void> {
+    const { uid } = await this.auth.getUser();
+    const log: any = {
+      incidencia: this.incidenciatoEdit.id,
+      fecha: Date.now(),
+      createdAt: firebase.firestore.Timestamp.now().toDate(),
+      usuario: uid,
+      descripcion: 'Incidencia asignada'
+    };
+    this.afs.collection('incidence_log').add(log);
     this.afs
       .doc(`incidence/${this.incidenciatoEdit.id}`)
-      .set({area: this.area, estado : 'ASIGNADA' }, { merge: true });
+      .set({area: $('#area option:selected').html(), estado : 'ASIGNADA' }, { merge: true });
     jQuery(this.editModal.nativeElement).modal('hide');
   }
 

@@ -11,9 +11,10 @@ import { FilterPipeModule } from 'ngx-filter-pipe';
 import { IncidenceAreaComponent } from './incidence-area/incidence-area.component';
 import { DragScrollModule } from 'ngx-drag-scroll';
 import { NgImageSliderModule } from 'ng-image-slider';
+import { IncidenceReporteComponent } from './incidence-reporte/incidence-reporte.component';
 
 @NgModule({
-  declarations: [IncidenceComponent, IncidenceDetailComponent, IncidenceListadoComponent, IncidenceAreaComponent],
+  declarations: [IncidenceComponent, IncidenceDetailComponent, IncidenceListadoComponent, IncidenceAreaComponent, IncidenceReporteComponent],
   imports: [
     CommonModule, FormsModule,
     ReactiveFormsModule,

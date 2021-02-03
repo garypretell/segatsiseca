@@ -16,6 +16,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { FilterPipeModule } from 'ngx-filter-pipe';
 import { DragScrollModule } from 'ngx-drag-scroll';
 import { NgImageSliderModule } from 'ng-image-slider';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { NgImageSliderModule } from 'ng-image-slider';
     NgxPaginationModule,
     FilterPipeModule,
     DragScrollModule,
-    NgImageSliderModule
+    NgImageSliderModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [],
   bootstrap: [AppComponent]

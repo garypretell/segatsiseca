@@ -27,8 +27,8 @@
                             <th class="text-left">Descripcion</th>
                             <th scope="col">Fecha</th>
                             <th scope="col">Estado</th>
-                            <th scope="col">Área</th>
-                            <th scope="col">Asignar Área</th>
+                            <th scope="col" class="text-center">Área</th>
+                            <th scope="col" *ngIf="estadoActual == 'REGISTRADO'" >Asignar Área</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,13 +44,14 @@
                             <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
                             <td><span class="badge badge-success">{{item.estado }}</span></td>
                             <ng-container *ngIf="item.area; else noarea" >
-                                <td class="text-center">{{ item.area }}</td>
+                                <td class="text-center"><span class="badge badge-primary"
+                                    >{{ item.area }}</span></td>
                             </ng-container>
                             <ng-template #noarea>
                                 <td class="text-center"><span class="badge badge-primary"
                                     >NO ASIGNADA</span></td>
                             </ng-template>
-                            <td><span role="button" class="badge badge-primary"
+                            <td *ngIf="estadoActual == 'REGISTRADO'"><span role="button" class="badge badge-dark"
                                     (click)="editIncidencia(item)">Editar</span></td>
                         </tr>
                     </tbody>
@@ -78,10 +79,10 @@
                     <div class="row mb-2">
                         <div class="col">
                           <label for="nivel">Area:</label>
-                          <select class="form-control" [(ngModel)]="area" name="area" >
+                          <select class="form-control" [(ngModel)]="area" name="area" id="area" >
                             <option selected disabled value="">Choose...</option>
                             <ng-container *ngFor="let area of areas">
-                              <option value="{{area.descripcion}}">{{area.descripcion}}</option>
+                              <option [ngValue]="area.descripcion" [selected]="area.descripcion == this.area">{{area.descripcion}}</option>
                             </ng-container>
                           </select>
                         </div>

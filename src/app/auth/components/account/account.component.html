@@ -35,6 +35,12 @@
               <input type="email" class="form-control" id="exampleDropdownFormEmail2" formControlName="email" placeholder="email@example.com" required>
             </div>
             <div class="form-group">
+              <label for="exampleFormControlTextarea1">Telefono:</label>
+              <input oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+              type = "number"
+              maxlength = "9"  class="form-control" id="exampleFormControlTextarea1" formControlName="telefono">
+          </div>
+            <div class="form-group">
               <label for="dni">Dni</label>
               <input oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
               type = "number"

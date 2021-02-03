@@ -13,7 +13,7 @@
         <th class="text-left">Descripcion</th>
         <th scope="col">Fecha</th>
         <th scope="col">Estado</th>
-        <th scope="col">Eliminar</th>
+        
       </tr>
     </thead>
     <tbody>
@@ -23,11 +23,10 @@
           {{item.id }}
         </td>
         <td class="text-left">
-          {{item.incidencia }}
+          {{item.incidencia | uppercase }}
         </td>
         <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
         <td><span class="badge badge-success">{{item.estado }}</span></td>
-        <td><span role="button" class="badge badge-danger" (click)="eliminar(item)">Delete</span></td>
       </tr>
     </tbody>
   </table>

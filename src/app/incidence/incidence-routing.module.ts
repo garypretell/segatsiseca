@@ -5,6 +5,7 @@ import { IncidenceComponent } from './incidence.component';
 import { IncidenceDetailComponent } from './incidence-detail/incidence-detail.component';
 import { IncidenceListadoComponent } from './incidence-listado/incidence-listado.component';
 import { IncidenceAreaComponent } from './incidence-area/incidence-area.component';
+import { IncidenceReporteComponent } from './incidence-reporte/incidence-reporte.component';
 
 
 
@@ -15,6 +16,7 @@ const routes: Routes = [
       { path: '', component: IncidenceComponent, pathMatch: 'full' },
       { path: 'listado', component: IncidenceListadoComponent },
       { path: 'area', component: IncidenceAreaComponent },
+      { path: 'reporte', component: IncidenceReporteComponent },
       {
         path: ':i',
         children: [

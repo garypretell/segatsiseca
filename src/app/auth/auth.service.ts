@@ -80,6 +80,7 @@ export class AuthService {
       dni: usuario.dni,
       displayName: usuario.displayName,
       email: usuario.email,
+      telefono: usuario.telefono,
       estado: true,
       principal: false,
       roles: {

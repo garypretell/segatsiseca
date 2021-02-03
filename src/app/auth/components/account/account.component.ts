@@ -36,6 +36,14 @@ export class AccountComponent implements OnInit {
           Validators.max(99999999),
         ],
       ],
+      telefono: [
+        '',
+        [
+          Validators.required,
+          Validators.min(100000000),
+          Validators.max(999999999),
+        ],
+      ],
       password: ['', [Validators.required]],
     });
   }

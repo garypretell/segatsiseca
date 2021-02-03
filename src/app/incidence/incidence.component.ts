@@ -15,7 +15,6 @@ import { finalize, take } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import firebase from 'firebase/app';
 import Swal from 'sweetalert2';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-incidence',
@@ -56,7 +55,9 @@ export class IncidenceComponent implements OnInit {
     public activatedroute: ActivatedRoute
   ) {
     this.incidenceForm = this.formBuilder.group({
-      descripcion: ['', [Validators.required]]
+      descripcion: ['', [Validators.required]],
+      direccion: ['', [Validators.required]],
+      // telefono: ['', [Validators.required]],
     });
   }
 
@@ -99,14 +100,25 @@ export class IncidenceComponent implements OnInit {
       }
       const data: any = {
         incidencia: this.incidenceForm.value.descripcion,
+        direccion: this.incidenceForm.value.direccion,
+        // telefono: this.incidenceForm.value.telefono,
         fechaReg: Date.now(),
         createdAt: firebase.firestore.Timestamp.now().toDate(),
         latitud: this.latitude,
         longitud: this.longitude,
         uid,
         estado: 'REGISTRADO',
-        area: 'SIN ASIGNAR'
+        area: 'SIN ASIGNAR',
+        finalizado: false
       };
+      const log: any = {
+        incidencia: uploadId,
+        fecha: Date.now(),
+        createdAt: firebase.firestore.Timestamp.now().toDate(),
+        usuario: uid,
+        descripcion: 'Incidencia creada'
+      };
+      this.afs.collection('incidence_log').add(log);
       this.afs.doc(`incidence/${uploadId}`).set(data);
       this.goHome();
     }else {
@@ -136,7 +148,8 @@ export class IncidenceComponent implements OnInit {
             estado: false,
             fechaReg: Date.now(),
             createdAt: firebase.firestore.Timestamp.now().toDate(),
-            uid
+            uid,
+            finalizado: false
           };
           this.afs.collection('imagenes').add(imagenes);
         })

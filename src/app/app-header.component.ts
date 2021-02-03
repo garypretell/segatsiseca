@@ -64,6 +64,10 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  goReportes(): void {
+    this.router.navigate(['incidence', 'reporte']);
+  }
+
   goIncidencias(): void {
     if (this.miusuario.principal) {
       this.router.navigate(['incidence', 'listado']);

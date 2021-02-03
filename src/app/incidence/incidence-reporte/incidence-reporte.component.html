@@ -1,13 +1,7 @@
 <div class="container-fluid ">
     <div class="row mt-4">
+
         <div class="col-sm-12 col-md-12">
-            <ng-container *ngIf="tipoIncidencia as tipos">
-                <select class="custom-select mb-3" size="4" (click)="filterList($event)">
-                    <ng-container *ngFor="let tipo of tipos">
-                        <option value="{{tipo.descripcion}}">{{tipo.descripcion}}</option>
-                    </ng-container>
-                </select>
-            </ng-container>
             <ng-container *ngIf="incidences$ | async as incidences; else loading">
                 <table class="table text-center" *ngIf="incidences.length > 0; else noElement">
                     <thead>
@@ -17,15 +11,14 @@
                             <th class="text-left">Descripcion</th>
                             <th scope="col">Fecha</th>
                             <th scope="col">Estado</th>
-                            <th scope="col">Área</th>
-                            <th scope="col">Actualizar</th>
-                            <th scope="col">Detalles</th>
+                            <th scope="col" class="text-center">Área</th>
+                            <th scope="col" class="text-center">Detalles</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr
                             *ngFor="let item of incidences | paginate: { itemsPerPage: 7, currentPage: p }; let i = index">
-                            <td>{{ 7 * (p -1) + i + 1}} </td>
+                            <td>{{ 10 * (p -1) + i + 1}} </td>
                             <td class="text-left">
                                 {{item.id }}
                             </td>
@@ -34,21 +27,12 @@
                             </td>
                             <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
                             <td><span class="badge badge-success">{{item.estado }}</span></td>
-                            <ng-container *ngIf="item.area; else noarea">
-                                <td class="text-center"><span role="button" class="badge badge-secondary"
-                                        (click)="editIncidencia(item)">{{ item.area }}</span></td>
-                            </ng-container>
-                            <ng-template #noarea>
-                                <td class="text-center"><span class="badge badge-primary">NO ASIGNADA</span></td>
-                            </ng-template>
-                            <td><span role="button" class="badge badge-primary"
-                                    (click)="cambiarestado(item)">Editar</span></td>
-                            <td><span role="button" class="badge badge-info" (click)="detalles(item)">Detalles</span>
-                            </td>
+                            <td class="text-center"><span class="badge badge-primary">{{ item.area }}</span></td>
+                            <td class="text-center"><span role="button" class="badge badge-dark" (click)="detalles(item)" >Detalles</span></td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="text-right mt-2" *ngIf="incidences.length > 7">
+                <div class="text-right mt-2" *ngIf="incidences.length > 10">
                     <pagination-controls (pageChange)="p = $event">
                     </pagination-controls>
                 </div>
@@ -56,39 +40,7 @@
         </div>
     </div>
 </div>
-<div #editModal class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <form class="form" (ngSubmit)="asignar()">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Asignar Area</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" *ngIf="areas$ | async as areas; else loading">
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label for="nivel">Area:</label>
-                            <select class="form-control" [(ngModel)]="area" name="area" id="area">
-                                <option selected disabled value="">Choose...</option>
-                                <ng-container *ngFor="let area of areas">
-                                    <option value="{{area.descripcion}}">{{area.descripcion}}</option>
-                                </ng-container>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button class="btn btn-primary" type="submit">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div #showModal class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2"
+<div #showModal class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -178,36 +130,7 @@
         </div>
     </div>
 </div>
-<div #showUpload class="modal fade" id="showUpload" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Finalizar Incidencia</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form [formGroup]="uploadForm" class="form mx-3 mt-3">
-                <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Observaciones:</label>
-                    <textarea class="form-control text-uppercase" id="exampleFormControlTextarea1" rows="3"
-                        formControlName="observacion"></textarea>
-                </div>
-                <div class="form-group mb-4">
-                    <label for="formGroupExampleInput2">Adjuntar Imágenes</label>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="customFileLang" lang="es"
-                            (change)="selectFiles($event)" accept="image/*,application/pdf" multiple>
-                        <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-lg" [disabled]="!selectedFiles"
-                    (click)="uploadFiles()">Registrar</button>
-            </form>
-        </div>
-    </div>
-</div>
+
 <ng-template #loading>
     <div class="d-flex justify-content-center mt-5">
         <div class="spinner-border text-info" role="status">
