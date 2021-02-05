@@ -87,6 +87,14 @@ export class IncidenceComponent implements OnInit {
 
   selectFiles(event): any {
     this.progressInfos = [];
+    if (event.target.files.length > 2){
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Adjunte 2 imágenes por incidencia!',
+      });
+      return;
+    }
     this.selectedFiles = event.target.files;
   }
 

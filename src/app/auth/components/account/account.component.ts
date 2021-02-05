@@ -6,7 +6,7 @@ import { AuthService } from '../../auth.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { map, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-account',
@@ -55,48 +55,54 @@ export class AccountComponent implements OnInit {
   }
 
   async onRegister(): Promise<any> {
-    this.afs.firestore
-      .doc(`usuarios/${this.accountForm.value.sede}`)
-      .get()
-      .then((docSnapshot: any) => {
-        if (!docSnapshot.exists) {
-          this.afs
-            .collection(`usuarios`, (ref) =>
-              ref.where('email', '==', this.accountForm.value.email)
-            )
-            .valueChanges({ idField: 'id' })
-            .pipe(
-              map(async (m) => {
-                try {
-                  const user = await this.auth.register(
-                    this.accountForm.value);
-                  if (user) {
-                    const isVerified = this.auth.isEmailVerified(user);
-                    this.redirectUser(isVerified);
-                  }
-                  return m[0];
-                } catch (error) {
-                  console.log('Error', error);
-                }
-              }), takeUntil(this.unsubscribe$)
-            ).subscribe();
+    const snapshot = await this.afs.firestore
+      .collection('usuarios')
+      .where('email', '==', +this.accountForm.value.email)
+      .get();
+    const data = snapshot.docs.map((doc) => doc.data());
+    if (data.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Este email ya ha sido registrado!',
+      });
+    } else {
+      const snapshotDNI = await this.afs.firestore
+        .collection('usuarios')
+        .where('dni', '==', +this.accountForm.value.dni)
+        .get();
+      const dataDNI = snapshotDNI.docs.map((doc) => doc.data());
+      if (dataDNI.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Este DNI ya ha sido registrado!',
+        });
+      } else {
+        const snapshotCEL = await this.afs.firestore
+          .collection('usuarios')
+          .where('telefono', '==', +this.accountForm.value.telefono)
+          .get();
+        const dataCEL = snapshotCEL.docs.map((doc) => doc.data());
+        if (dataCEL.length > 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Este teléfono ya ha sido registrado!',
+          });
         } else {
-          const user: any = docSnapshot.data();
-          if (user.email === this.accountForm.value.email) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Este email ya ha sido registrado!',
-            });
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Este DNI ya ha sido registrado!',
-            });
+          try {
+            const user = await this.auth.register(this.accountForm.value);
+            if (user) {
+              const isVerified = this.auth.isEmailVerified(user);
+              this.redirectUser(isVerified);
+            }
+          } catch (error) {
+            console.log('Error', error);
           }
         }
-      });
+      }
+    }
   }
 
   private redirectUser(isVerified: boolean): void {

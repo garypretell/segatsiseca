@@ -54,6 +54,20 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
   latitude: number;
   longitude: number;
   zoom: number;
+
+  tableData: any[] = [];
+
+  firstInResponse: any = [];
+
+  lastInResponse: any = [];
+
+  prev_strt_at: any = [];
+
+  pagination_clicked_count = 0;
+
+  disable_next = false;
+  disable_prev = false;
+  limit = 5;
   public uploadForm: FormGroup;
   usuarioIncidencia: any;
   constructor(
@@ -76,17 +90,9 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
       .where('estado', '>', 1)
       .get();
     this.tipoIncidencia = snapshot2.docs.map((doc) => doc.data());
-
     const snapshot = await this.afs.firestore.doc(`usuarios/${uid}`).get();
     this.data = snapshot.data();
-    this.incidences$ = this.afs
-      .collection('incidence', (ref) =>
-        ref
-          .where('estado', '==', 'ASIGNADA')
-          .where('area', '==', this.data.area)
-          .orderBy('createdAt', 'desc')
-      )
-      .valueChanges({ idField: 'id' });
+    this.loadItems(this.estadoActual);
     this.areas$ = this.afs.collection('areas').valueChanges({ idField: 'id' });
   }
 
@@ -95,16 +101,150 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  filterList(e): void {
-    this.estadoActual = e.target.vale;
-    this.incidences$ = this.afs
+  loadItems(estado): any {
+    this.afs
+      .collection('incidence', (ref) =>
+        ref.where('estado', '==', estado).where('area', '==', this.data.area).limit(this.limit).orderBy('createdAt', 'desc')
+      )
+      .snapshotChanges()
+      .subscribe(
+        (response) => {
+          if (!response.length) {
+            console.log('No Data Available');
+            return false;
+          }
+          this.firstInResponse = response[0].payload.doc;
+          this.lastInResponse = response[response.length - 1].payload.doc;
+
+          this.tableData = [];
+          for (const item of response) {
+            const data: any = item.payload.doc.data();
+            const id = item.payload.doc.id;
+            const final: any = { id, ...data };
+            this.tableData.push(final);
+          }
+
+          this.prev_strt_at = [];
+          this.pagination_clicked_count = 0;
+          this.disable_next = false;
+          this.disable_prev = false;
+
+          this.push_prev_startAt(this.firstInResponse);
+        },
+        (error) => {}
+      );
+  }
+
+  prevPage(): any {
+    this.disable_prev = true;
+    this.afs
       .collection('incidence', (ref) =>
         ref
-          .where('estado', '==', e.target.value)
-          .where('area', '==', this.data.area)
+          .where('estado', '==', this.estadoActual).where('area', '==', this.data.area)
           .orderBy('createdAt', 'desc')
+          .startAt(this.get_prev_startAt())
+          .endBefore(this.firstInResponse)
+          .limit(this.limit)
       )
-      .valueChanges({ idField: 'id' });
+      .get()
+      .subscribe(
+        (response) => {
+          this.firstInResponse = response.docs[0];
+          this.lastInResponse = response.docs[response.docs.length - 1];
+
+          this.tableData = [];
+          for (const item of response.docs) {
+            const data: any = item.data();
+            const id = item.id;
+            const final: any = { id, ...data };
+            this.tableData.push(final);
+          }
+
+          this.pagination_clicked_count--;
+
+          this.pop_prev_startAt(this.firstInResponse);
+
+          this.disable_prev = false;
+          this.disable_next = false;
+        },
+        (error) => {
+          this.disable_prev = false;
+        }
+      );
+  }
+
+  nextPage(): any {
+    this.disable_next = true;
+    this.afs
+      .collection('incidence', (ref) =>
+        ref
+          .where('estado', '==', this.estadoActual).where('area', '==', this.data.area)
+          .limit(this.limit)
+          .orderBy('createdAt', 'desc')
+          .startAfter(this.lastInResponse)
+      )
+      .get()
+      .subscribe(
+        (response) => {
+          if (!response.docs.length) {
+            this.disable_next = true;
+            return;
+          }
+
+          this.firstInResponse = response.docs[0];
+
+          this.lastInResponse = response.docs[response.docs.length - 1];
+          this.tableData = [];
+          for (const item of response.docs) {
+            const data: any = item.data();
+            const id = item.id;
+            const final: any = { id, ...data };
+            this.tableData.push(final);
+          }
+
+          this.pagination_clicked_count++;
+
+          this.push_prev_startAt(this.firstInResponse);
+
+          this.disable_next = false;
+        },
+        (error) => {
+          this.disable_next = false;
+        }
+      );
+  }
+
+  push_prev_startAt(prev_first_doc): any {
+    this.prev_strt_at.push(prev_first_doc);
+  }
+
+  pop_prev_startAt(prev_first_doc): any {
+    this.prev_strt_at.forEach((element) => {
+      if (prev_first_doc.data().id === element.data().id) {
+        element = null;
+      }
+    });
+  }
+
+  get_prev_startAt(): any {
+    if (this.prev_strt_at.length > this.pagination_clicked_count + 1) {
+      this.prev_strt_at.splice(
+        this.prev_strt_at.length - 2,
+        this.prev_strt_at.length - 1
+      );
+    }
+    return this.prev_strt_at[this.pagination_clicked_count - 1];
+  }
+
+  readableDate(time): any {
+    const d = new Date(time);
+    return d.getDate() + '/' + d.getMonth() + '/' + d.getFullYear();
+  }
+
+  filterList(e): void {
+    this.tableData = [];
+    this.estadoActual = e.target.value;
+    this.loadItems(this.estadoActual);
   }
 
   editIncidencia(incidencia): void {

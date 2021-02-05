@@ -28,6 +28,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   foto: any;
   super: boolean;
   miusuario: any = {};
+  isVerified: any;
   constructor(
     public auth: AuthService,
     public afAuth: AngularFireAuth,

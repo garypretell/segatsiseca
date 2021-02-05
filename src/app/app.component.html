@@ -1,8 +1,12 @@
 <div class="container-fluid">
-  <app-header *ngIf="auth.user$ | async" ></app-header>
-  <ng-container *ngIf="!conexion"  >
+  <ng-container *ngIf="auth.user$ | async" >
+    <ng-container *ngIf="auth.isEmailVerified$">
+      <app-header></app-header>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="!conexion">
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <strong>Holy guacamole!</strong> You should check in on some of those fields below.
+      <strong>Advertencia!</strong> Conexión perdida!.
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>

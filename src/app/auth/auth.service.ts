@@ -5,12 +5,14 @@ import { User } from './user';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import firebase from 'firebase/app';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   authenticated$: Observable<boolean>;
+  isEmailVerified$: Observable<boolean>;
   user$: Observable<any>;
 
   constructor(private afs: AngularFirestore, public afAuth: AngularFireAuth) {
@@ -18,6 +20,7 @@ export class AuthService {
     this.user$ = this.afAuth.authState.pipe(
       switchMap(user => {
         if (user) {
+          this.isEmailVerified$ = of(user.emailVerified);
           return this.afs.doc(`usuarios/${user.uid}`).valueChanges();
         } else {
           return of(null);
@@ -49,8 +52,30 @@ export class AuthService {
       const { user } = await this.afAuth.signInWithEmailAndPassword(email, password);
       return user;
     } catch (error) {
+      Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: this.convertMessage(error['code']),
+        });
       console.log('Error->', error);
       return false;
+    }
+  }
+
+  convertMessage(code: string): string {
+    switch (code) {
+      case 'auth/user-disabled': {
+        return 'Sorry your user is disabled.';
+      }
+      case 'auth/user-not-found': {
+        return 'Usuario no registrado.';
+      }
+      case 'auth/wrong-password': {
+        return 'Contraseña incorrecta.';
+      }
+      default: {
+        return 'Login error try again later.';
+      }
     }
   }
 
