@@ -32,6 +32,7 @@
     "@auth0/angular-jwt": "^5.0.2",
     "@firebase/firestore": "^2.1.4",
     "bootstrap": "^4.5.3",
+    "file-saver": "^2.0.5",
     "firebase": "^8.2.5",
     "jquery": "^3.5.1",
     "ng-image-slider": "^2.6.4",
@@ -43,6 +44,7 @@
     "rxjs-compat": "^6.6.3",
     "sweetalert2": "^10.14.0",
     "tslib": "^2.0.0",
+    "xlsx": "^0.16.9",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

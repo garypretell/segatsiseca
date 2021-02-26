@@ -6,6 +6,8 @@ import { IncidenceDetailComponent } from './incidence-detail/incidence-detail.co
 import { IncidenceListadoComponent } from './incidence-listado/incidence-listado.component';
 import { IncidenceAreaComponent } from './incidence-area/incidence-area.component';
 import { IncidenceReporteComponent } from './incidence-reporte/incidence-reporte.component';
+import { PageNotFoundComponent } from '../shared/components/page-not-found/page-not-found.component';
+import { IncidenceBuscarComponent } from './incidence-buscar/incidence-buscar.component';
 
 
 
@@ -17,6 +19,7 @@ const routes: Routes = [
       { path: 'listado', component: IncidenceListadoComponent },
       { path: 'area', component: IncidenceAreaComponent },
       { path: 'reporte', component: IncidenceReporteComponent },
+      { path: 'buscar', component: IncidenceBuscarComponent },
       {
         path: ':i',
         children: [

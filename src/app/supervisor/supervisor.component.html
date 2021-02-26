@@ -1,92 +1,87 @@
-<div class="container-fluid">
-    <div class="row mt-1">
-        <div class="col-sm-12 col-md-12">
-            <ng-container *ngIf="tipoIncidencia$ | async as tipos; else loading">
-                <select class="custom-select mb-3" size="5" (click)="filterList($event)">
-                    <ng-container *ngFor="let tipo of tipos">
-                        <option value="{{tipo.descripcion}}">{{tipo.descripcion}}</option>
-                    </ng-container>
-                </select>
-            </ng-container>
-            <div class="shadow alert alert-warning alert-dismissible fade show mt-2" role="alert">
-                <hr class="mt-1 mb-1">
-                <div class="row justify-content-between">
-                  <div class="dropdown mb-2 ml-2">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-                      {{nomFecha}}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                      <button class="dropdown-item" type="button" (click)="hoy()" >Progreso Actual</button>
-                      <button class="dropdown-item" type="button" (click)="rango()" >Rango de Fechas</button>
-                    </div>
-                  </div>
-                  <form class="form-inline mb-2">
-                    <ng-container *ngIf="!fechaActual; else actual"  >
-                      <label for="desde" class="ml-2 mr-1">Desde: </label>
-                      <input type="date" class="form-control mr-2" [max]= "hasta" [(ngModel)]="desde"  [ngModelOptions]="{ standalone: true }" id="desde" (ngModelChange)="changeBetween()">
-                      <label for="hasta" class="ml-2 mr-1">Hasta: </label>
-                      <input type="date" class="form-control" [min]="desde" [max]= "hoyF" [(ngModel)]="hasta"  [ngModelOptions]="{ standalone: true }" id="hasta" (ngModelChange)="changeBetween()">
-                    </ng-container>
-                    <ng-template #actual>
-                      <input type="date" class="form-control" [max]="hoyF" [(ngModel)]="today" [ngModelOptions]="{ standalone: true }" (ngModelChange)="changeActual(today)" disabled > 
-                    </ng-template>
-                  </form>
+<div class="row mb-2">
+    <div class="col">
+        <select class="custom-select mb-4" size="2" (click)="filterLista($event)">
+            <option value="EN ATENCIÓN" selected>ASIGNADAS</option>
+            <option value="CONCLUÍDA">ATENDIDAS</option>
+        </select>
+    </div>
+</div>
+<ng-container *ngIf="incidencias$ | async as incidencias; else loading" >
+    <ng-container *ngIf="incidencias.length > 0; else noElement">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th class="text-left" scope="col">Código</th>
+                    <th class="text-left">Descripcion</th>
+                    <th class="text-left">Dirección</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col" class="text-center">Estado</th>
+                    <th scope="col" class="text-center">Área</th>
+                    <th scope="col" class="text-center" *ngIf="estado === 'EN ATENCIÓN'" >Actualizar</th>
+                    <th scope="col" class="text-center">Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let item of incidencias | paginate: { itemsPerPage: limit, currentPage: p }; let i = index">
+                    <td>{{ i + 1}} </td>
+                    <td class="text-left">
+                        {{item.id }}
+                    </td>
+                    <td class="text-left">
+                        {{item.incidencia | uppercase }}
+                    </td>
+                    <td class="text-left">
+                        {{item.direccion | uppercase }}
+                    </td>
+                    <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
+                    <td class="text-center"><span class="badge badge-success">{{item.estado == 'EN ATENCIÓN' ? 'ASIGNADAS' : 'ATENDIDAS' }}</span></td>
+                    <td class="text-center"><span class="badge badge-secondary">{{ item.area }}</span></td>
+                    <td class="text-center" *ngIf="estado === 'EN ATENCIÓN'"><span role="button" class="badge badge-primary"
+                            (click)="asignarModal(item)">Editar</span>
+                    </td>
+                    <td class="text-center"><span role="button" class="badge badge-info"
+                            (click)="detalles(item)">Detalles</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ng-container>
+</ng-container>
+
+
+<div #showUpload class="modal fade" id="showUpload" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Finalizar Incidencia</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form [formGroup]="uploadForm" class="form mx-3 mt-3">
+                <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Observaciones:</label>
+                    <textarea class="form-control text-uppercase" id="exampleFormControlTextarea1" rows="3"
+                        formControlName="observacion"></textarea>
                 </div>
-               </div>
-               <ng-container *ngIf="incidences$ | async as incidencias; else loading">
-                <table class="table mt-4" *ngIf="incidencias.length > 0; else noElement">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th class="text-left" scope="col">Código</th>
-                            <th class="text-left">Descripcion</th>
-                            <th class="text-left">Dirección</th>
-                            <th scope="col">Fecha</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col" class="text-center">Área</th>
-                            <th scope="col" class="text-center">Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            *ngFor="let item of incidencias | paginate: { itemsPerPage: limit, currentPage: p }; let i = index">
-                            <td>{{ limit * (p -1) + i + 1}} </td>
-                            <td class="text-left">
-                                {{item.id }}
-                            </td>
-                            <td class="text-left">
-                                {{item.incidencia | uppercase }}
-                            </td>
-                            <td class="text-left">
-                                {{item.direccion | uppercase }}
-                            </td>
-                            <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
-                            <td><span class="badge badge-success">{{item.estado }}</span></td>
-                            <td class="text-center"><span class="badge badge-primary">{{ item.area }}</span></td>
-                            <td class="text-center"><span role="button" class="badge badge-dark"
-                                    (click)="detalles(item)">Detalles</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <hr *ngIf="incidencias.length > limit">
-                <div class="row justify-content-between">
-                    <div>
-                        <button class="btn btn-success ml-4" (click)="excel()" >Exportar Excel</button>
+                <div class="form-group mb-4">
+                    <label for="formGroupExampleInput2">Adjuntar Imágenes</label>
+                    <div class="custom-file">
+                        <input #inputFile type="file" class="custom-file-input" id="customFileLang" lang="es"
+                            (change)="selectFiles($event)" accept="image/*,application/pdf" multiple>
+                        <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
                     </div>
-                    <div class="text-right">
-                        <pagination-controls (pageChange)="p = $event" *ngIf="incidencias.length > limit">
-                        </pagination-controls>
-                      </div>
                 </div>
-                    
-               </ng-container>
-               
-            
+                <button class="btn btn-primary btn-lg" [disabled]="!selectedFiles"
+                    (click)="uploadFiles()">Registrar</button>
+            </form>
         </div>
     </div>
 </div>
-<div #showModal class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div #showModal class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2"
     aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -97,7 +92,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row" id="print-section" class="print">
                     <div class="col">
                         <div class="shadow-sm card mt-2 mb-3">
                             <li class="media">
@@ -147,56 +142,48 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            Observación: {{miincidencia?.observacion | uppercase}}
                         </ng-container>
-
-                        <!-- <hr>
-                        <h4>Ubicación:</h4>
-                        <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoom">
-                            <agm-marker [latitude]="latitude" [longitude]="longitude" [markerDraggable]="false">
-                            </agm-marker>
-                        </agm-map> -->
                     </div>
+                    <hr>
                     <div class="col">
                         <h4>Inicio Incidencia(Fotos)</h4>
                         <br>
-                       <ng-container *ngFor="let o of imageObject">
-                            <div class="col"><img style="width: 200;height: 150;" [src]="o.image" alt=""></div>
-                        </ng-container>
+                        <div class="container">
+                            <div class="row row-cols-4">
+                                <ng-container *ngFor="let o of imageObject">
+                                    <div class="col"><img style="width: 200;height: 150;" [src]="o.image" alt=""></div>
+                                </ng-container>
+                            </div>
+                        </div>
                         <hr>
                         <ng-container *ngIf="finalizado">
                             <h4>Fin Incidencia(Fotos)</h4>
                             <br>
-
-                            <ng-container *ngFor="let o2 of imageObject2">
-                                <div class="col"><img style="width: 200;height: 150;" [src]="o2.image" alt="">
+                            <div class="container">
+                                <div class="row row-cols-4">
+                                    <ng-container *ngFor="let o2 of imageObject2">
+                                        <div class="col"><img style="width: 200;height: 150;" [src]="o2.image" alt="">
+                                        </div>
+                                    </ng-container>
                                 </div>
-                            </ng-container>
+                            </div>
                         </ng-container>
                     </div>
                 </div>
             </div>
+            <button class="btn btn-primary btn-lg" (click)="print()">Imprimir</button>
         </div>
     </div>
 </div>
-
+<ng-template #noElement>
+    <div class="alert alert-info" role="alert">
+        No existen incidencias en este estado!
+    </div>
+</ng-template>
 <ng-template #loading>
     <div class="d-flex justify-content-center mt-5">
         <div class="spinner-border text-info" role="status">
         </div>
         <strong class="text-info"> Loading... </strong>
-    </div>
-</ng-template>
-<ng-template #mensaje>
-    <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
-        <strong>Important!</strong> Add folders from the list to start indexing.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-</ng-template>
-<ng-template #noElement>
-    <div class="alert alert-info" role="alert">
-        No existen incidencias en este estado!
     </div>
 </ng-template>

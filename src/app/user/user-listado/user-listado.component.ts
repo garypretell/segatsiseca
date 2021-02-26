@@ -19,13 +19,14 @@ export class UserListadoComponent implements OnInit, AfterViewInit {
   @ViewChild('inputEl') inputEl: ElementRef;
   @ViewChild('editModal') editModal: ElementRef;
   usuarios$: Observable<any>;
+  areas$: Observable<any>;
   searchDni: any;
   private unsubscribe$ = new Subject();
-  areas: any = [];
   usuariotoEdit: any = {};
   usuariotoArray: any = [];
 
   area: any;
+  tipousuario: any;
   subscriber: any;
   editor: any;
   admin: any;
@@ -34,6 +35,7 @@ export class UserListadoComponent implements OnInit, AfterViewInit {
 
   searchDoc: any = { descripcion: '' };
   sedes$: Observable<any>;
+  tipoUsuario$: Observable<any>;
   constructor(
     public afs: AngularFirestore,
     public router: Router,
@@ -42,9 +44,8 @@ export class UserListadoComponent implements OnInit, AfterViewInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.sedes$ = this.afs.collection('areas').valueChanges({idField: 'id'});
-    const snapshot = await this.afs.firestore.collection('areas').get();
-    this.areas = snapshot.docs.map(doc => doc.data());
+    this.sedes$ = this.afs.collection('areas', ref => ref.orderBy('descripcion', 'asc')).valueChanges({idField: 'id'});
+    this.tipoUsuario$ = this.afs.collection('tipo_usuario', ref => ref.orderBy('descripcion', 'asc')).valueChanges({idField: 'id'});
   }
 
   ngAfterViewInit(): void {
@@ -101,6 +102,7 @@ export class UserListadoComponent implements OnInit, AfterViewInit {
           this.usuariotoEdit = usuario.uid;
           this.subscriber = true;
           this.area = user.area;
+          this.tipousuario = user.tipousuario;
           this.editor = user.roles.editor;
           this.admin = user.roles.admin;
           this.super = user.roles.super;
@@ -113,13 +115,48 @@ export class UserListadoComponent implements OnInit, AfterViewInit {
   }
 
   async updateUsuario(): Promise<any> {
+
+    switch (this.tipousuario) {
+      case 'GERENTE':
+        this.principal = false;
+        this.super = true;
+        this.admin = true;
+        this.editor = true;
+        break;
+      case 'SECRETARIA GENERAL':
+        this.principal = true;
+        this.super = false;
+        this.admin = true;
+        this.editor = true;
+        break;
+      case 'SECRETARIA DE AREA':
+        this.principal = false;
+        this.super = false;
+        this.admin = false;
+        this.editor = true;
+        break;
+      case 'SUPERVISOR':
+        this.principal = false;
+        this.super = false;
+        this.admin = false;
+        this.editor = true;
+        break;
+      case 'CIUDADANO':
+        this.principal = false;
+        this.super = false;
+        this.admin = false;
+        this.editor = false;
+        break;
+      default:
+        console.log('Lo lamentamos, por el momento no disponemos de ');
+    }
     const data: any = {
       roles: {
-        admin: this.admin,
-        editor: this.editor,
-        subscriber: this.subscriber,
         super: this.super,
+        admin: this.admin,
+        editor: this.editor
       },
+      tipousuario: this.tipousuario,
       area: this.area,
       principal: this.principal
     };

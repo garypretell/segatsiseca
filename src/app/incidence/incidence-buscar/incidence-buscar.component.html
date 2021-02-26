@@ -1,0 +1,99 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item text-primary"><a role="button" (click)="goHome()">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Buscar Incidencia</li>
+    </ol>
+</nav>
+<section>
+    <ng-container>
+        <div class="container-fluid mt-3">
+            <div class="row">
+                <div class="col-sm-12 col-md-3">
+                    <form class="form mr-3" (ngSubmit)="buscar()">
+                        <input #inputEl type="search" class="form-control mb-3 mt-3 mx-3" id="search" name="search"
+                            placeholder="Buscar Incidencia" [(ngModel)]="searchIncidencia" [readonly]="busqueda">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block mb-3 mx-3">Buscar</button>
+                        <button type="button" class="btn btn-danger btn-lg btn-block mb-3 mx-3" (click)="limpiar()" >Limpiar</button>
+                    </form>
+                </div>
+                <div class="col-sm-12 col-md-9 bg-light altura">
+                    <ng-container *ngIf="incidencia else mensaje">
+                        <form class="form-inline">
+                            <div class="form-group mb-2">
+                                <h5>Incidencia ({{ incidencia.id }})</h5>
+                                <span role="button" class="badge badge-primary ml-2" *ngIf="auth.canDelete(auth.user$ | async)" (click)="reiniciar()" >REINICIAR INCIDENCIA</span>
+                            </div>
+                        </form>
+                       <hr>
+                        <form>
+                            <div class="form-row">
+                              <div class="form-group col-md-6">
+                                <label for="inputEmail4">Area</label>
+                                <input type="text" class="form-control" id="inputEmail4" value="{{incidencia.area}}" readonly>
+                              </div>
+                              <div class="form-group col-md-6">
+                                <label for="inputPassword4">Estado</label>
+                                <input type="text" class="form-control" id="inputPassword4"  value="{{incidencia.estado}}" readonly>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label for="inputAddress">Descripcion</label>
+                              <textarea class="form-control text-uppercase" id="exampleFormControlTextarea1" rows="2" readonly>{{incidencia.incidencia}}</textarea>
+                            </div>
+                            <div class="form-group">
+                              <label for="inputAddress2">Dirección</label>
+                              <input type="text" class="form-control text-uppercase" id="inputAddress2" value="{{ incidencia.direccion }}" readonly >
+                            </div>
+                            <div class="form-group">
+                                <label for="inputAddress2">Detalles</label>
+                                <ng-container *ngIf="logIncidencia as incidences; else loading">
+                                    <table class="table text-center mt-2" *ngIf="incidences.length > 0; else noElement">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th class="text-left">Descripcion</th>
+                                                <th scope="col">Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of incidences; let i = index">
+                                                <td>{{ i + 1}} </td>
+                                                <td class="text-left">
+                                                    {{item.descripcion | uppercase }}
+                                                </td>
+                                                <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ng-container>
+                                
+                              </div>
+                          </form>
+                    </ng-container> 
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</section>
+
+<ng-template #loading>
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border text-info" role="status">
+        </div>
+        <strong class="text-info"> Loading... </strong>
+    </div>
+</ng-template>
+
+<ng-template #mensaje>
+    <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+        <strong>Mensaje!</strong> Ingrese código de incidencia para iniciar la búsqueda!.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</ng-template>
+<ng-template #noElement>
+    <div class="alert alert-info" role="alert">
+        No existen incidencias en este estado!
+    </div>
+</ng-template>

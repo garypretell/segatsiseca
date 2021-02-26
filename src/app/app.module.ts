@@ -17,10 +17,11 @@ import { FilterPipeModule } from 'ngx-filter-pipe';
 import { DragScrollModule } from 'ngx-drag-scroll';
 import { NgImageSliderModule } from 'ng-image-slider';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { PageNotFoundComponent } from './shared/components/page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
-    AppComponent, AppHeaderComponent
+    AppComponent, AppHeaderComponent, PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

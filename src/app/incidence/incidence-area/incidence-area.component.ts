@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
 import firebase from 'firebase/app';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 declare const jQuery: any;
 declare const $;
 
@@ -27,6 +27,7 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
   @ViewChild('editModal') editModal: ElementRef;
   @ViewChild('showModal') showModal: ElementRef;
   @ViewChild('showUpload') showUpload: ElementRef;
+  @ViewChild('asignModal') asignModal: ElementRef;
   selectedFiles: FileList;
   uploadPercent: Observable<number>;
   downloadURL: Observable<string>;
@@ -40,34 +41,38 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
   tipoIncidencia$: Observable<any>;
   areas$: Observable<any>;
   data: any;
+  incidencia: any;
   tipoIncidencia: any = [];
   estadoActual: any = 'ASIGNADA';
+  miestado: any = 'ASIGNAR';
   imagenes: any = [];
   imagenes2: any = [];
   imageObject = [];
   logIncidencia = [];
   imageObject2 = [];
   area: any;
+  hoy = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 1)).toISOString().substring(0, 10);
+  hasta = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 1)).toISOString().substring(0, 10);
   p = 1;
+
+  miincidencia: any;
+  selectedDay = '';
 
   finalizado: any;
   latitude: number;
   longitude: number;
   zoom: number;
 
-  tableData: any[] = [];
-
-  firstInResponse: any = [];
-
-  lastInResponse: any = [];
-
-  prev_strt_at: any = [];
-
-  pagination_clicked_count = 0;
-
-  disable_next = false;
-  disable_prev = false;
   limit = 5;
+  fechaActual = true;
+  nomFecha = 'Progreso Actual';
+  max = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+  hoyF = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+  today = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+  desde = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+  hastaF = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+  usuariosDisponibles$: Observable<any>;
+  usuarioDisponible: any;
   public uploadForm: FormGroup;
   usuarioIncidencia: any;
   constructor(
@@ -92,8 +97,14 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
     this.tipoIncidencia = snapshot2.docs.map((doc) => doc.data());
     const snapshot = await this.afs.firestore.doc(`usuarios/${uid}`).get();
     this.data = snapshot.data();
-    this.loadItems(this.estadoActual);
     this.areas$ = this.afs.collection('areas').valueChanges({ idField: 'id' });
+    this.incidences$ = this.afs.collection('incidence', (ref) => ref.where('estado', '==', this.estadoActual)
+    .where('area', '==', this.data.area).where(
+      'fechaReg',
+      '==',
+      Date.parse(firebase.firestore.Timestamp.now().toDate().toISOString().substring(0, 10))
+    ).orderBy('createdAt', 'asc')
+      ).valueChanges({ idField: 'id' }).pipe(tap(arr => console.log(`read ${arr.length} docs`)));
   }
 
   ngOnDestroy(): void {
@@ -101,150 +112,38 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  loadItems(estado): any {
-    this.afs
-      .collection('incidence', (ref) =>
-        ref.where('estado', '==', estado).where('area', '==', this.data.area).limit(this.limit).orderBy('createdAt', 'desc')
-      )
-      .snapshotChanges()
-      .subscribe(
-        (response) => {
-          if (!response.length) {
-            console.log('No Data Available');
-            return false;
-          }
-          this.firstInResponse = response[0].payload.doc;
-          this.lastInResponse = response[response.length - 1].payload.doc;
-
-          this.tableData = [];
-          for (const item of response) {
-            const data: any = item.payload.doc.data();
-            const id = item.payload.doc.id;
-            const final: any = { id, ...data };
-            this.tableData.push(final);
-          }
-
-          this.prev_strt_at = [];
-          this.pagination_clicked_count = 0;
-          this.disable_next = false;
-          this.disable_prev = false;
-
-          this.push_prev_startAt(this.firstInResponse);
-        },
-        (error) => {}
-      );
+  sumarDias(fecha, dias): any{
+    fecha.setDate(fecha.getDate() + dias);
+    return fecha;
   }
 
-  prevPage(): any {
-    this.disable_prev = true;
-    this.afs
-      .collection('incidence', (ref) =>
-        ref
-          .where('estado', '==', this.estadoActual).where('area', '==', this.data.area)
-          .orderBy('createdAt', 'desc')
-          .startAt(this.get_prev_startAt())
-          .endBefore(this.firstInResponse)
-          .limit(this.limit)
-      )
-      .get()
-      .subscribe(
-        (response) => {
-          this.firstInResponse = response.docs[0];
-          this.lastInResponse = response.docs[response.docs.length - 1];
-
-          this.tableData = [];
-          for (const item of response.docs) {
-            const data: any = item.data();
-            const id = item.id;
-            const final: any = { id, ...data };
-            this.tableData.push(final);
-          }
-
-          this.pagination_clicked_count--;
-
-          this.pop_prev_startAt(this.firstInResponse);
-
-          this.disable_prev = false;
-          this.disable_next = false;
-        },
-        (error) => {
-          this.disable_prev = false;
-        }
-      );
-  }
-
-  nextPage(): any {
-    this.disable_next = true;
-    this.afs
-      .collection('incidence', (ref) =>
-        ref
-          .where('estado', '==', this.estadoActual).where('area', '==', this.data.area)
-          .limit(this.limit)
-          .orderBy('createdAt', 'desc')
-          .startAfter(this.lastInResponse)
-      )
-      .get()
-      .subscribe(
-        (response) => {
-          if (!response.docs.length) {
-            this.disable_next = true;
-            return;
-          }
-
-          this.firstInResponse = response.docs[0];
-
-          this.lastInResponse = response.docs[response.docs.length - 1];
-          this.tableData = [];
-          for (const item of response.docs) {
-            const data: any = item.data();
-            const id = item.id;
-            const final: any = { id, ...data };
-            this.tableData.push(final);
-          }
-
-          this.pagination_clicked_count++;
-
-          this.push_prev_startAt(this.firstInResponse);
-
-          this.disable_next = false;
-        },
-        (error) => {
-          this.disable_next = false;
-        }
-      );
-  }
-
-  push_prev_startAt(prev_first_doc): any {
-    this.prev_strt_at.push(prev_first_doc);
-  }
-
-  pop_prev_startAt(prev_first_doc): any {
-    this.prev_strt_at.forEach((element) => {
-      if (prev_first_doc.data().id === element.data().id) {
-        element = null;
-      }
-    });
-  }
-
-  get_prev_startAt(): any {
-    if (this.prev_strt_at.length > this.pagination_clicked_count + 1) {
-      this.prev_strt_at.splice(
-        this.prev_strt_at.length - 2,
-        this.prev_strt_at.length - 1
-      );
-    }
-    return this.prev_strt_at[this.pagination_clicked_count - 1];
-  }
-
-  readableDate(time): any {
-    const d = new Date(time);
-    return d.getDate() + '/' + d.getMonth() + '/' + d.getFullYear();
+  selectChangeHandler(event: any): any {
+    this.selectedDay = event.target.value;
   }
 
   filterList(e): void {
-    this.tableData = [];
     this.estadoActual = e.target.value;
-    this.loadItems(this.estadoActual);
+    if (this.fechaActual) {
+      this.incidences$ = this.afs.collection('incidence', (ref) => ref.where('estado', '==', this.estadoActual)
+    .where('area', '==', this.data.area).where(
+      'fechaReg',
+      '==',
+      Date.parse(firebase.firestore.Timestamp.now().toDate().toISOString().substring(0, 10))
+    ).orderBy('createdAt', 'asc')
+      ).valueChanges({ idField: 'id' });
+    }else {
+      this.incidences$ = this.afs
+      .collection('incidence', (ref) =>
+        ref.where('fechaReg', '>=', Date.parse(this.desde)).where('fechaReg', '<=', Date.parse(this.hastaF))
+        .where('estado', '==', this.estadoActual)
+        .where('area', '==', this.data.area)
+      )
+      .valueChanges({ idField: 'id' }).pipe(tap(arr => console.log(`read ${arr.length} docs`)));
+    }
+  }
+
+  filterLista(e): void {
+    this.miestado = e.target.value;
   }
 
   editIncidencia(incidencia): void {
@@ -274,45 +173,78 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
     }
   }
 
-  async cambiarestado(item): Promise<void> {
+  asignarModal(item): any {
+    this.incidencia = item;
+    if (item.estado === 'ASIGNADA' || item.estado === 'PROGRAMADA' ) {
+      this.usuariosDisponibles$ = this.afs
+        .collection('usuarios', (ref) =>
+          ref
+            .where('tipousuario', '==', 'SUPERVISOR')
+          //  .where('disponible', '==', true)
+        )
+        .valueChanges({ idField: 'id' });
+      jQuery(this.asignModal.nativeElement).modal('show');
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Esta incidencia no puede ser actualizada!',
+      });
+    }
+  }
+
+  changeReprogramar(): void {
+
+  }
+
+  async cambiarestado(): Promise<void> {
+    // console.log(new Date(this.hasta).toISOString().substring(0, 10));
+    // console.log( Date.parse(this.hasta));
+    const item: any = this.incidencia;
     this.incidenciaId = item.id;
     const { uid } = await this.auth.getUser();
     const estadoNext = this.estado(item.estado);
-    if (item.estado === 'EN ATENCIÓN') {
-      jQuery(this.showUpload.nativeElement).modal('show');
-    } else {
-      if (estadoNext) {
-        Swal.fire({
-          title: `${item.estado} => ${estadoNext}`,
-          text: 'No podrá revertir este proceso!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Actualizar',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const log: any = {
-              incidencia: item.id,
-              fecha: Date.now(),
-              createdAt: firebase.firestore.Timestamp.now().toDate(),
-              usuario: uid,
-              descripcion: `Incidencia ${estadoNext}`,
-            };
-            this.afs.collection('incidence_log').add(log);
-            this.afs
-              .doc(`incidence/${item.id}`)
-              .set({ estado: estadoNext }, { merge: true });
-            Swal.fire('Actualizado!', 'Incidencia actualizada.', 'success');
-          }
-        });
+    if (this.miestado === 'ASIGNAR') {
+      if (this.usuarioDisponible) {
+        const log: any = {
+          supervisor: this.usuarioDisponible,
+          incidencia: item.id,
+          fecha: Date.now(),
+          createdAt: firebase.firestore.Timestamp.now().toDate(),
+          usuario: uid,
+          descripcion: `Incidencia ${estadoNext}`,
+        };
+        this.afs.collection('incidence_log').add(log);
+        this.afs
+          .doc(`incidence/${item.id}`)
+          .set(
+            { estado: estadoNext, supervisor: this.usuarioDisponible },
+            { merge: true }
+          );
+        Swal.fire('Actualizado!', 'Incidencia actualizada.', 'success');
+        jQuery(this.asignModal.nativeElement).modal('hide');
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Esta incidencia no puede ser actualizada!',
+          text: 'Seleccione supervisor!',
         });
       }
+    } else {
+      const log: any = {
+        incidencia: item.id,
+        fecha: Date.now(),
+        createdAt: firebase.firestore.Timestamp.now().toDate(),
+        usuario: uid,
+        descripcion: `Incidencia PROGRAMADA`,
+      };
+      this.afs.collection('incidence_log').add(log);
+      this.afs
+        .doc(`incidence/${item.id}`)
+        .set({ estado: 'PROGRAMADA', createdProgramada:
+        Date.parse(this.hasta), fechaprogramada: new Date(this.hasta).toISOString().substring(0, 10) }, { merge: true });
+      Swal.fire('Reprogramada!', 'Incidencia Reprogramada.', 'success');
+      jQuery(this.asignModal.nativeElement).modal('hide');
     }
   }
 
@@ -341,16 +273,18 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
     this.afs.collection('incidence_log').add(log);
     this.afs
       .doc(`incidence/${this.incidenciatoEdit.id}`)
-      .set({ area: $('#area option:selected').html() }, { merge: true });
+      .set({ area: this.selectedDay }, { merge: true });
   }
 
   async detalles(item): Promise<void> {
+    this.miincidencia = item;
     this.imageObject = [];
     this.imageObject2 = [];
     this.logIncidencia = [];
     const getLogs = await this.afs.firestore
       .collection('incidence_log')
-      .where('incidencia', '==', item.id).orderBy('createdAt', 'asc')
+      .where('incidencia', '==', item.id)
+      .orderBy('createdAt', 'asc')
       .get();
     this.logIncidencia = getLogs.docs.map((doc) => doc.data());
     this.finalizado = item.finalizado;
@@ -408,9 +342,14 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
         descripcion: 'Incidencia Cerrada',
       };
       this.afs.collection('incidence_log').add(log);
-      this.afs
-        .doc(`incidence/${this.incidenciaId}`)
-        .set({ estado: 'CONCLUÍDA', finalizado: true }, { merge: true });
+      this.afs.doc(`incidence/${this.incidenciaId}`).set(
+        {
+          estado: 'CONCLUÍDA',
+          finalizado: true,
+          observacion: this.uploadForm.value.observacion,
+        },
+        { merge: true }
+      );
       jQuery(this.showUpload.nativeElement).modal('hide');
     } else {
       Swal.fire({
@@ -446,5 +385,113 @@ export class IncidenceAreaComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  print(): void {
+    let printContents;
+    let popupWin;
+    printContents = document.getElementById('print-section').innerHTML;
+    popupWin = window.open('', '_blank', 'top=0,left=0,height=100%,width=auto');
+    popupWin.document.open();
+    popupWin.document.write(`
+    <html>
+      <head>
+        <title>Incidencia</title>
+        <link rel="stylesheet preload" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <style>
+        .myslider {
+          width: 200;
+          height: 150;
+      }
+      myslider {
+        width: 200;
+        height: 150;
+    }
+        * {
+          font-size: 0.93rem;
+        }
+        @media print{
+          @page {size: portrait}
+          .printTD{
+          display: inherit;
+          }
+          .myslider {
+            width: 200;
+            height: 150;
+        }
+          thead {
+          display: table-row-group
+          }
+          td{
+          overflow-wrap: break-word;
+          word-break: break-word;
+          }
+          }
+        </style>
+      </head>
+  <body onload="window.print();window.close()">${printContents}
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
+    </html>`);
+    popupWin.document.close();
+  }
+
+  hoyB(): any {
+    this.p = 1;
+    this.today = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+    this.nomFecha = 'Progreso Actual';
+    this.fechaActual = true;
+    return this.getFecha();
+  }
+
+  getFecha(): any {
+    this.desde = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+    this.hastaF = new Date(this.sumarDias( firebase.firestore.Timestamp.now().toDate(), 0)).toISOString().substring(0, 10);
+    this.incidences$ = this.afs
+      .collection('incidence', (ref) =>
+        ref
+          .where('area', '==', this.data.area)
+          .where(
+            'fechaReg',
+            '==',
+            Date.parse(firebase.firestore.Timestamp.now().toDate().toISOString().substring(0, 10))
+          )
+          .where('estado', '==', this.estadoActual)
+          .orderBy('createdAt', 'asc')
+      )
+      .valueChanges({ idField: 'id' }).pipe(tap(arr => console.log(`read ${arr.length} docs`)));
+
+  }
+
+  rangoB(): any {
+    this.p = 1;
+    this.nomFecha = 'Rango de Fechas';
+    this.fechaActual = false;
+    this.changeBetween();
+  }
+
+  changeBetween(): any{
+    this.p = 1;
+    const desde = Date.parse(this.desde);
+    const hasta = Date.parse(this.hastaF);
+    this.getBetween(desde, hasta);
+  }
+
+  getBetween(desde, hasta): any {
+    this.incidences$ = this.afs
+      .collection('incidence', (ref) =>
+        ref.where('fechaReg', '>=', desde).where('fechaReg', '<=', hasta).where('estado', '==', this.estadoActual)
+        .where('area', '==', this.data.area)
+        .where('estado', '==', this.estadoActual)
+      )
+      .valueChanges({ idField: 'id' }).pipe(tap(arr => console.log(`read ${arr.length} docs`)));
+  }
+
+  changeActual(today): any {
+    this.p = 1;
+    const mifecha = Date.parse(today);
+    this.getFecha();
   }
 }

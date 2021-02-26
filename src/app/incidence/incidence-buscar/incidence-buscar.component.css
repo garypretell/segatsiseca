@@ -1,9 +1,6 @@
-agm-map {
-    height: 300px;
-}
-
-myslider {
-    height: 300px;
+.altura {
+    max-height: calc(100vh - 190px);
+    overflow-y: auto;
 }
 
 img {

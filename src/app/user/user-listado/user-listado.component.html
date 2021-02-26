@@ -36,28 +36,102 @@
                       <p></p>
                       <hr />
                     </div>
+                    <div #editModal class="modal fade" id="editModal" tabindex="-1" role="dialog"
+                      aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Editar Usuario</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="container">
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <label for="nivel">Area:</label>
+                                  <select class="form-control" [(ngModel)]="area">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option value="SEGAT">SEGAT</option>
+                                    <ng-container *ngFor="let area of sedes">
+                                      <option value="{{area.descripcion}}">{{area.descripcion}}</option>
+                                    </ng-container>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="row mb-2">
+                                <div class="col" *ngIf="tipoUsuario$ | async as tipos; else loading" >
+                                  <label for="nivel">Tipo Usuario:</label>
+                                  <select class="form-control" [(ngModel)]="tipousuario">
+                                    <option selected disabled value="">Choose...</option>
+                                    <ng-container *ngFor="let tipo of tipos">
+                                      <option value="{{tipo.descripcion}}">{{tipo.descripcion}}</option>
+                                    </ng-container>
+                                  </select>
+                                </div>
+                              </div>
+                              <!-- <div class="row mb-2">
+                                <div class="col">
+                                  <label for="nivel">Operadora:</label>
+                                  <select class="form-control" [(ngModel)]="editor">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option [ngValue]="true">YES</option>
+                                    <option [ngValue]="false">NO</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <label for="nivel">Secretaria Principal</label>
+                                  <select class="form-control" [(ngModel)]="principal">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option [ngValue]="true">YES</option>
+                                    <option [ngValue]="false">NO</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <label for="nivel">Administrador</label>
+                                  <select class="form-control" [(ngModel)]="admin">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option [ngValue]="true">YES</option>
+                                    <option [ngValue]="false">NO</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <label for="nivel">Gerencia:</label>
+                                  <select class="form-control" [(ngModel)]="super">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option [ngValue]="true">YES </option>
+                                    <option [ngValue]="false">NO</option>
+                                  </select>
+                                </div>
+                              </div> -->
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            <button class="btn btn-primary" (click)="updateUsuario()"> Actualizar </button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </ng-container>
               <hr />
+              <input #inputEl type="search" class="form-control text-uppercase mb-3 mt-3 mx-3" id="inlineFormInputGroup"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                type="number" maxlength="8" minlength="8" placeholder="Buscar Usuario Dni" [(ngModel)]="searchDni">
+              <button class="btn btn-primary btn-lg btn-block mb-3 mx-3" (click)="buscar()">Buscar</button>
             </div>
           </div>
-          <!-- <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <strong>Mensaje!</strong><br>
-            <hr>
-            1. Busque usuario por DNI.<br>
-            2. Asigne Area a la que pertence el usuario.<br>
-            3. Actualice permisos.
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div> -->
-          <div class="input-group mb-3">
-            <input #inputEl type="search" class="form-control text-uppercase" id="inlineFormInputGroup"
-              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-              type="number" maxlength="8" minlength="8" placeholder="Buscar Usuario Dni" [(ngModel)]="searchDni">
-          </div>
-          <button class="btn btn-primary btn-lg btn-block mb-3" (click)="buscar()">Buscar</button>
+
 
         </div>
         <div class="col-sm-12 col-md-8 bg-light altura">
@@ -109,79 +183,7 @@
     </div>
   </ng-container>
 </section>
-<div #editModal class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Editar Usuario</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="container">
-          <div class="row mb-2">
-            <div class="col">
-              <label for="nivel">Area:</label>
-              <select class="form-control" [(ngModel)]="area">
-                <option selected disabled value="">Choose...</option>
-                <ng-container *ngFor="let area of areas">
-                  <option value="{{area.descripcion}}">{{area.descripcion}}</option>
-                </ng-container>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col">
-              <label for="nivel">Operadora:</label>
-              <select class="form-control" [(ngModel)]="editor">
-                <option selected disabled value="">Choose...</option>
-                <option [ngValue]="true">YES</option>
-                <option [ngValue]="false">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col">
-              <label for="nivel">Secretaria Principal</label>
-              <select class="form-control" [(ngModel)]="principal">
-                <option selected disabled value="">Choose...</option>
-                <option [ngValue]="true">YES</option>
-                <option [ngValue]="false">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col">
-              <label for="nivel">Administrador</label>
-              <select class="form-control" [(ngModel)]="admin">
-                <option selected disabled value="">Choose...</option>
-                <option [ngValue]="true">YES</option>
-                <option [ngValue]="false">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col">
-              <label for="nivel">Gerencia:</label>
-              <select class="form-control" [(ngModel)]="super">
-                <option selected disabled value="">Choose...</option>
-                <option [ngValue]="true">YES </option>
-                <option [ngValue]="false">NO</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button class="btn btn-primary" (click)="updateUsuario()"> Actualizar </button>
-      </div>
 
-    </div>
-  </div>
-</div>
 <ng-template #loading>
   <div class="d-flex justify-content-center mt-5">
     <div class="spinner-border text-info" role="status">

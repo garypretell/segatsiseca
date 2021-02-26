@@ -8,18 +8,18 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item" *ngIf="auth.canEdit(auth.user$ | async)">
+      <!-- <li class="nav-item" *ngIf="auth.canEdit(auth.user$ | async)">
         <a role="button" #proyectosLink routerLinkActive="active" class="nav-link" (click)="goUsuarios()">
           Usuarios </a>
-      </li>
-      <li class="nav-item" *ngIf="auth.canEdit(auth.user$ | async)">
+      </li> -->
+      <!-- <li class="nav-item" *ngIf="auth.canEdit(auth.user$ | async)">
         <a role="button" #proyectosLink routerLinkActive="active" class="nav-link" (click)="goIncidencias()">
           Incidencias </a>
       </li>
-      <li class="nav-item" *ngIf="auth.canDelete(auth.user$ | async)">
+      <li class="nav-item" *ngIf="auth.canSuper(auth.user$ | async)">
         <a role="button" #proyectosLink routerLinkActive="active" class="nav-link" (click)="goReportes()">
           Reportes </a>
-      </li>      
+      </li>       -->
     </ul>
     <form class="form-inline my-2 my-lg-0">
       <span class="navbar-text mx-1">
@@ -75,7 +75,7 @@
                 <path d="m230.257812 195.984375h15.003907v-114.222656h-51.8125v15h36.808593zm0 0" />
                 <path d="m245.261719 333.679688h-15.003907v81.558593h-36.808593v15h51.8125zm0 0" />
               </svg>
-              Sign Out
+              Cerrar Sesión
             </button>
           </div>
         </div>

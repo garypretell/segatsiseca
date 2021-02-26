@@ -1,5 +1,5 @@
 <div class="container-fluid ">
-    <div class="row mt-2" *ngIf="tableData.length > 0; else noElement">
+    <div class="row mt-2" >
         <div class="col-sm-12 col-md-12">
             <h5>Incidencias</h5>
             <ng-container *ngIf="tipoIncidencia$ | async as tipos">
@@ -15,154 +15,47 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div >
-                <div class="text-center mb-4">
-                    <button class="btn btn btn-info btn-sm float-left" (click)="prevPage()"
-                        [disabled]="disable_prev || !(pagination_clicked_count>0)"><svg width="25" height="25"
-                            version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 490.6 490.6"
-                            style="enable-background:new 0 0 490.6 490.6;" xml:space="preserve">
-                            <path style="fill:#009688;" d="M245.3,0C109.8,0,0,109.8,0,245.3s109.8,245.3,245.3,245.3s245.3-109.8,245.3-245.3
-                       C490.5,109.9,380.7,0.1,245.3,0z" />
-                            <path style="fill:#FAFAFA;"
-                                d="M373.3,192H249.7l19.2-19.2c18.9-18.9,18.9-49.5,0-68.4l0,0c-19.2-18.2-49.3-18.2-68.4,0.1
-                       L82.2,222.7c-12.5,12.5-12.5,32.8,0,45.2l118.3,118.2c19.5,14.5,44.9,17.4,65-0.1c20.1-17.6,15.6-41.9,6.7-63
-                       c-1.4-1.7-1.8-3.7-3.4-5.1l-19.2-19.2h123.7c29.5,0,53.3-23.9,53.3-53.3C426.6,215.8,402.8,192,373.3,192z" />
-                            <path
-                                d="M245.3,490.6C109.8,490.6,0,380.8,0,245.3S109.8,0,245.3,0s245.3,109.8,245.3,245.3C490.5,380.7,380.7,490.5,245.3,490.6z
-                        M245.3,21.3c-123.7,0-224,100.3-224,224s100.3,224,224,224s224-100.3,224-224C469.2,121.6,369,21.4,245.3,21.3z" />
-                            <path
-                                d="M234.6,400.4c-12.8,0-25.1-5.1-34.1-14.3L82.2,267.9c-12.5-12.5-12.5-32.8,0-45.2l118.3-118.2c19.1-18.3,49.3-18.3,68.4,0
-                       c18.9,18.9,18.9,49.5,0,68.4l0,0l-19.2,19.2h123.6c29.5,0,53.3,23.9,53.3,53.3c0,29.5-23.9,53.3-53.3,53.3H249.7l19.2,19.2
-                       c18.9,18.9,18.9,49.5,0,68.4c-9,9-21.3,14.1-34.1,14.2L234.6,400.4z M234.6,111.6c-7.2,0-14.1,2.8-19.2,7.9L97.3,237.7
-                       c-4.2,4.2-4.2,10.9,0,15.1l118.2,118.3c10.7,10.2,27.5,10.2,38.3,0c10.6-10.5,10.6-27.7,0-38.2l0,0l-37.3-37.3
-                       c-4.2-4.1-4.3-10.9-0.1-15.1c2-2.1,4.8-3.2,7.8-3.2h149.1c17.7,0,32-14.3,32-32s-14.3-32-32-32H224c-5.9,0-10.7-4.8-10.7-10.6
-                       c0-2.8,1.1-5.6,3.1-7.6l37.4-37.2c10.6-10.6,10.5-27.7,0-38.3C248.7,114.5,241.8,111.7,234.6,111.6L234.6,111.6z" />
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                        </svg>
-                    </button> <b>Página #{{pagination_clicked_count+1}} - ({{limit}} items por página)</b>
-                    <button class="btn btn btn-info btn-sm float-right" (click)="nextPage()"
-                        [disabled]="disable_next"><svg width="25" height="25" version="1.1" id="Capa_1"
-                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-                            y="0px" viewBox="0 0 490.667 490.667" style="enable-background:new 0 0 490.667 490.667;"
-                            xml:space="preserve">
-                            <path style="fill:#009688;" d="M245.333,0C109.839,0,0,109.839,0,245.333s109.839,245.333,245.333,245.333
-                     s245.333-109.839,245.333-245.333C490.514,109.903,380.764,0.153,245.333,0z" />
-                            <path style="fill:#FAFAFA;"
-                                d="M290.133,104.533c-19.139-18.289-49.277-18.289-68.416,0c-18.893,18.881-18.902,49.503-0.021,68.395
-                     c0.007,0.007,0.014,0.014,0.021,0.021l19.2,19.2H117.333C87.878,192.149,64,216.027,64,245.483
-                     c0,29.455,23.878,53.333,53.333,53.333h123.584l-19.2,19.2c-17.522,20.175-15.371,50.734,4.804,68.257
-                     c18.259,15.858,45.423,15.799,63.612-0.139l118.251-118.251c12.492-12.496,12.492-32.752,0-45.248L290.133,104.533z" />
-                            <path d="M245.333,490.667C109.839,490.667,0,380.827,0,245.333S109.839,0,245.333,0s245.333,109.839,245.333,245.333
-                     C490.514,380.764,380.764,490.514,245.333,490.667z M245.333,21.333c-123.712,0-224,100.288-224,224s100.288,224,224,224
-                     s224-100.288,224-224C469.192,121.68,368.987,21.474,245.333,21.333z" />
-                            <path d="M256,400.384c-26.71-0.059-48.315-21.76-48.256-48.47c0.028-12.769,5.105-25.008,14.122-34.048l19.2-19.2H117.333
-                     C87.878,298.667,64,274.789,64,245.333S87.878,192,117.333,192h123.584l-19.2-19.2c-18.893-18.881-18.902-49.503-0.021-68.395
-                     c0.007-0.007,0.014-0.014,0.021-0.021c19.139-18.289,49.277-18.289,68.416,0l118.251,118.251c12.492,12.496,12.492,32.752,0,45.248
-                     L290.133,386.133C281.115,395.251,268.824,400.382,256,400.384z M117.333,213.333c-17.673,0-32,14.327-32,32s14.327,32,32,32
-                     h149.333c5.891-0.011,10.675,4.757,10.686,10.648c0.005,2.84-1.123,5.565-3.134,7.571L236.8,332.8
-                     c-10.563,10.549-10.574,27.663-0.025,38.225c0.008,0.009,0.017,0.017,0.025,0.025c10.711,10.199,27.54,10.199,38.251,0
-                     L393.301,252.8c4.164-4.165,4.164-10.917,0-15.083L275.2,119.467c-10.711-10.199-27.54-10.199-38.251,0
-                     c-10.563,10.549-10.574,27.663-0.025,38.225c0.008,0.008,0.017,0.017,0.025,0.025l37.333,37.333
-                     c4.207,4.124,4.274,10.877,0.15,15.084c-2.042,2.083-4.849,3.239-7.766,3.198H117.333z" />
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                            <g>
-                            </g>
-                        </svg>
-                    </button>
+            <ng-container *ngIf="incidences$ | async as incidencias; else loading" >
+                <div *ngIf="incidencias.length > 0; else noElement" >
+                    <table class="table mt-2">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th class="text-left" scope="col">Código</th>
+                                <th class="text-left">Descripcion</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col" class="text-center">Estado</th>
+                                <th scope="col" class="text-center">Área</th>
+                                <th scope="col" class="text-center" *ngIf="estadoActual == 'REGISTRADO'">Asignar Área</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="let item of incidencias | paginate: { itemsPerPage: limit, currentPage: p }; let i = index">
+                                <td>{{ i + 1}} </td>
+                                <td class="text-left">
+                                    {{item.id }}
+                                </td>
+                                <td class="text-left">
+                                    {{item.incidencia | uppercase }}
+                                </td>
+                                <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
+                                <td class="text-center"><span class="badge badge-success">{{item.estado }}</span></td>
+                                <ng-container *ngIf="item.area; else noarea">
+                                    <td class="text-center"><span class="badge badge-primary">{{ item.area }}</span></td>
+                                </ng-container>
+                                <ng-template #noarea>
+                                    <td class="text-center"><span class="badge badge-primary">NO ASIGNADA</span></td>
+                                </ng-template>
+                                <td class="text-center" *ngIf="estadoActual == 'REGISTRADO'"><span role="button"
+                                        class="badge badge-dark" (click)="editIncidencia(item)">Editar</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="table mt-2">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th class="text-left" scope="col">Código</th>
-                            <th class="text-left">Descripcion</th>
-                            <th scope="col">Fecha</th>
-                            <th scope="col" class="text-center">Estado</th>
-                            <th scope="col" class="text-center">Área</th>
-                            <th scope="col" class="text-center" *ngIf="estadoActual == 'REGISTRADO'">Asignar Área</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            *ngFor="let item of tableData | paginate: { itemsPerPage: limit, currentPage: p }; let i = index">
-                            <td>{{ limit * (pagination_clicked_count+1 -1) + i + 1}} </td>
-                            <td class="text-left">
-                                {{item.id }}
-                            </td>
-                            <td class="text-left">
-                                {{item.incidencia | uppercase }}
-                            </td>
-                            <td>{{item.createdAt?.toDate() | date: 'medium'}}</td>
-                            <td class="text-center"><span class="badge badge-success">{{item.estado }}</span></td>
-                            <ng-container *ngIf="item.area; else noarea">
-                                <td class="text-center"><span class="badge badge-primary">{{ item.area }}</span></td>
-                            </ng-container>
-                            <ng-template #noarea>
-                                <td class="text-center"><span class="badge badge-primary">NO ASIGNADA</span></td>
-                            </ng-template>
-                            <td class="text-center" *ngIf="estadoActual == 'REGISTRADO'"><span role="button"
-                                    class="badge badge-dark" (click)="editIncidencia(item)">Editar</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            </ng-container>
+            
+            
         </div>
     </div>
 </div>
@@ -181,7 +74,7 @@
                     <div class="row mb-2">
                         <div class="col">
                             <label for="nivel">Area:</label>
-                            <select class="form-control" [(ngModel)]="area" name="area" id="area">
+                            <select (change)="selectChangeHandler($event)" class="form-control"  name="area" id="area">
                                 <option selected disabled value="">Choose...</option>
                                 <ng-container *ngFor="let area of areas">
                                     <option [ngValue]="area.descripcion" [selected]="area.descripcion == this.area">

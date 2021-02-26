@@ -53,16 +53,14 @@ export class IncidenceComponent implements OnInit {
     public formBuilder: FormBuilder,
     public afs: AngularFirestore,
     public activatedroute: ActivatedRoute
-  ) {
-    this.incidenceForm = this.formBuilder.group({
-      descripcion: ['', [Validators.required]],
-      direccion: ['', [Validators.required]],
-      // telefono: ['', [Validators.required]],
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.setCurrentLocation();
+    this.incidenceForm = this.formBuilder.group({
+      descripcion: ['', [Validators.required]],
+      direccion: ['', [Validators.required]],
+    });
   }
 
   private setCurrentLocation(): void {
@@ -76,7 +74,6 @@ export class IncidenceComponent implements OnInit {
   }
 
   markerDragEnd($event: MouseEvent): void {
-    console.log($event);
     this.latitude = $event.coords.lat;
     this.longitude = $event.coords.lng;
   }
@@ -87,7 +84,7 @@ export class IncidenceComponent implements OnInit {
 
   selectFiles(event): any {
     this.progressInfos = [];
-    if (event.target.files.length > 2){
+    if (event.target.files.length > 2) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -103,33 +100,34 @@ export class IncidenceComponent implements OnInit {
     const { uid } = await this.authservice.getUser();
     if (this.incidenceForm.value.descripcion) {
       this.visible = true;
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        this.upload(i, this.selectedFiles[i], uploadId, uid );
+      if (this.selectedFiles) {
+        for (let i = 0; i < this.selectedFiles.length; i++) {
+          this.upload(i, this.selectedFiles[i], uploadId, uid);
+        }
       }
       const data: any = {
         incidencia: this.incidenceForm.value.descripcion,
         direccion: this.incidenceForm.value.direccion,
-        // telefono: this.incidenceForm.value.telefono,
-        fechaReg: Date.now(),
+        fechaReg: Date.parse(firebase.firestore.Timestamp.now().toDate().toISOString().substring(0, 10)),
         createdAt: firebase.firestore.Timestamp.now().toDate(),
         latitud: this.latitude,
         longitud: this.longitude,
         uid,
         estado: 'REGISTRADO',
         area: 'SIN ASIGNAR',
-        finalizado: false
+        finalizado: false,
       };
       const log: any = {
         incidencia: uploadId,
-        fecha: Date.now(),
+        fecha: Date.parse(firebase.firestore.Timestamp.now().toDate().toISOString().substring(0, 10)),
         createdAt: firebase.firestore.Timestamp.now().toDate(),
         usuario: uid,
-        descripcion: 'Incidencia creada'
+        descripcion: 'Incidencia creada',
       };
       this.afs.collection('incidence_log').add(log);
       this.afs.doc(`incidence/${uploadId}`).set(data);
       this.goHome();
-    }else {
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -157,7 +155,7 @@ export class IncidenceComponent implements OnInit {
             fechaReg: Date.now(),
             createdAt: firebase.firestore.Timestamp.now().toDate(),
             uid,
-            finalizado: false
+            finalizado: false,
           };
           this.afs.collection('imagenes').add(imagenes);
         })

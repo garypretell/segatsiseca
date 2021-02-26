@@ -44,7 +44,7 @@
                         <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
                     </div>
                 </div>
-                <button class="btn btn-primary btn-lg" [disabled]="!selectedFiles" (click)="uploadFiles()">Registrar</button>
+                <button class="btn btn-primary btn-lg" [disabled]="!incidenceForm.valid" (click)="uploadFiles()">Registrar</button>
                 <hr>
             </form>
         </div>
